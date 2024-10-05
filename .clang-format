@@ -1,0 +1,6 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+AccessModifierOffset: -4  # Indent class access specifiers (public, private, protected)
+ConstructorInitializerIndentWidth: 4  # Indent constructor initializer lists by 4
+ContinuationIndentWidth: 4  # Indent continued lines by 4
+NamespaceIndentation: All  # Indent everything inside namespaces
