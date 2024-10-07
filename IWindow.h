@@ -40,7 +40,7 @@ template <BufferConcept BufferType, GraphicsPipelineConcept<BufferType> Pipeline
     // having this weird arse thing CRTP
     void display() const;
 
-    void swapBuffers() {
+    inline void swapBuffers() {
         std::swap(front, back);
         graphicsPipeline.flush();
     }
@@ -54,7 +54,7 @@ template <BufferConcept BufferType, GraphicsPipelineConcept<BufferType> Pipeline
     PipelineType & getPipe(){
         return graphicsPipeline;
     }
-    void drawVBO() {
+    inline void drawVBO() {
         graphicsPipeline.setTargetBuffer(back);
         graphicsPipeline.drawVBO();
     }

@@ -27,12 +27,12 @@ class FixedPoint {
         : value(static_cast<T>(v) << FIXED_POINT_SHIFT) {
     } // mark me as excplicit
 
-    static constexpr FixedPoint fromRaw(T rawValue) {
+    static constexpr inline FixedPoint fromRaw(T rawValue) {
         FixedPoint fp;
         fp.value = rawValue;
         return fp;
     }
-    static constexpr FixedPoint maxValue() {
+    static constexpr inline FixedPoint maxValue() {
         // Compute the maximum value for the fixed-point representation
         return FixedPoint::fromRaw(std::numeric_limits<T>::max());
     }

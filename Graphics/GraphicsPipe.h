@@ -46,8 +46,8 @@ public:
         : vertexShader(Vertex()), fragmentShader(Fragment()),
           rasterizer(Rasterizer(DefferdBuffer)) {
         static_assert(
-        static_assert(std::is_same_v<typename Vertex::Out, typename Fragment::In>,
-                      "Vertex shader output type (Vertex::Out) does not match Fragment shader input type (Fragment::In)");
+            std::is_same_v<typename Vertex::Out, typename Fragment::In>,
+            "Fragment shader input type must match Vertex shader output type.");
         std::memset(DefferdBuffer.data(), 0,
                     DefferdBuffer.size() * sizeof(typename Vertex::Out));
     }
@@ -73,8 +73,9 @@ public:
         std::vector<typename Vertex::Out> transformedVertices;
         transformedVertices.reserve(vbo.size());
 
-        std::transform(vbo.begin(), vbo.end(), std::back_inserter(transformedVertices),
-                       [&](auto&& vertex) { return vertexShader.apply(vertex); });
+        for (auto  && vertex : vbo) {
+            transformedVertices.push_back(vertexShader.apply(vertex));
+        }
 
         // Rasterize triangles
         for (size_t i = 0; i < transformedVertices.size(); i += 3) {
@@ -84,7 +85,7 @@ public:
         }
     }
 
-    void FragmentProcessBuffer() {
+    inline void FragmentProcessBuffer() {
         auto *data = this->DefferdBuffer.data();
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; ++x) {
@@ -97,7 +98,7 @@ public:
         }
     }
 
-    void flush()  {
+    inline void flush()  {
         FragmentProcessBuffer();
         std::memset(DefferdBuffer.data(), 0,
                     DefferdBuffer.size() * sizeof(typename Vertex::Out));

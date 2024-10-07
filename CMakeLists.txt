@@ -25,7 +25,7 @@ add_compile_options(
     -Wnull-dereference
     -Wdouble-promotion
     -Wformat=2
-    #-O3
+    -O3
     -fexceptions
     -Winline
     -Wpessimizing-move
