@@ -3,8 +3,8 @@
 #include "Buffer.h"
 #include "IWindow.h"
 #include <iostream>
-template <class BufferType, long unsigned int WIDTH, long unsigned int HEIGHT>
-void IWindow<BufferType, WIDTH, HEIGHT>::display() const {
+template <class BufferType, class PipelineType,long unsigned int WIDTH, long unsigned int HEIGHT>
+void IWindow<BufferType,PipelineType, WIDTH, HEIGHT>::display() const {
     static const char shadingArray[11] = " .:-=+*%@#";
     Pixel *data = this->front->getData();
     int bufferWidth = this->front->getWidth();
@@ -19,5 +19,5 @@ void IWindow<BufferType, WIDTH, HEIGHT>::display() const {
         }
         putchar('\n');
     }
-    std::cout << bufferHeight << std::endl;
+    //std::cout << bufferHeight << std::endl;
 }

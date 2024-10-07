@@ -6,12 +6,10 @@
 #include "Graphics/Shaders/FragmentShaderImpl.h"
 #include "Graphics/Shaders/VertexShaderImpl.h"
 #include "IWindow.h"
-
+#include <chrono> // For time handling
+#include <thread> // For sleep function
 int main() {
     // Create a graphics pipeline
-    auto pipeline = std::make_shared<GraphicsPipeline<
-        VertexShaderImpl<Ffloat>, FragmentShaderImpl<Ffloat>,
-        BasicRasterizer<80, 60, Math::FixedVector4>, 80, 60>>();
 
     // Create a window
     auto vertices = std::make_shared<std::array<Math::FixedVector3, 36>>(
@@ -59,14 +57,57 @@ int main() {
             {-0.5f, 0.5f, -0.5f}, // top-left
             {-0.5f, 0.5f, 0.5f}   // bottom-left
         }));
-    pipeline->getVertexShader().setModelMatrix(
-        Math::FixedMatrix4f::rotateZ(0.5) * Math::FixedMatrix4f::rotateX(0.5f));
-    // pipeline->getFragmentShader().pos +=0.01;
-    IWindow<Buffer, 80, 60> window(pipeline);
-    window.bindVBO(static_cast<void *>(vertices->data()), vertices->size());
-    window.drawVBO();
 
-    window.swapBuffers();
-    // window.flush();
-    window.display();
+
+    using VertexShader = VertexShaderImpl<Ffloat>;
+    using FragmentShader = FragmentShaderImpl<Ffloat>;
+    using Rasterizer = BasicRasterizer<40, 20, Math::FixedVector4>;
+    using GraphicsPipelineType = GraphicsPipeline<VertexShader, FragmentShader, Rasterizer, 40, 20>;
+
+    IWindow<Buffer, GraphicsPipelineType, 40, 20> window;
+    auto &pipeline = window.getPipe();
+
+    pipeline.getVertexShader().setModelMatrix(Math::FixedMatrix4f::rotateZ(0.5) * Math::FixedMatrix4f::rotateX(0.5f));
+    pipeline.getFragmentShader().pos +=0.01;
+
+    window.bindVBO(*vertices);
+    float theta = 0;
+
+    using namespace std::chrono;
+
+    auto frameDuration = milliseconds(100); // Duration of 100ms for 10fps
+    auto previousTime = steady_clock::now();
+
+    while (true) {
+        // Get current time
+        auto currentTime = steady_clock::now();
+        // Calculate elapsed time
+        auto elapsedTime =
+                duration_cast<milliseconds>(currentTime - previousTime);
+
+        if (elapsedTime >= frameDuration) {
+
+            // Update time
+
+            previousTime = currentTime;
+
+            // Perform rendering
+
+            window.drawVBO();
+            window.swapBuffers();
+
+            window.display();
+
+            // Update shader parameters
+            theta += 0.1f;
+            pipeline.getVertexShader().setModelMatrix(
+                    Math::FixedMatrix4f::rotateZ(theta) *
+                    Math::FixedMatrix4f::rotateX(theta ));
+            //pipeline.getFragmentShader().pos +=0.05;
+        } else {
+            // Sleep for the remaining time to cap the frame rate
+            std::this_thread::sleep_for(frameDuration - elapsedTime);
+        }
+    }
+
 }

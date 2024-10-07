@@ -14,6 +14,7 @@
 #include <concepts>
 #include <memory>
 #include <vector>
+#include <span>
 namespace {
     template <typename T>
     concept Shader = requires(T a, typename T::In b) {
@@ -27,12 +28,12 @@ namespace {
 // fragment shader input, WHY ARE THE SHADERS TEMPLATED
 template <Shader Vertex, Shader Fragment, typename Rasterizer, size_t WIDTH,
           size_t HEIGHT>
-class GraphicsPipeline : public IGraphicsPipeline {
+class GraphicsPipeline {
 public:
     constexpr GraphicsPipeline(Vertex vertexShader1, Fragment fragmentShader1,
                                Rasterizer rasterizer1)
         : vertexShader(vertexShader1), fragmentShader(fragmentShader1),
-          rasterizer(rasterizer1), vboSize(0) {
+          rasterizer(rasterizer1) {
         static_assert(
             std::is_same_v<typename Vertex::Out, typename Fragment::In>,
             "Fragment shader input type must match Vertex shader output type.");
@@ -42,11 +43,11 @@ public:
     }
 
     constexpr GraphicsPipeline()
-        : vertexShader(Vertex()), fragmentShader(Fragment()), vboSize(0),
+        : vertexShader(Vertex()), fragmentShader(Fragment()),
           rasterizer(Rasterizer(DefferdBuffer)) {
         static_assert(
-            std::is_same_v<typename Vertex::Out, typename Fragment::In>,
-            "Fragment shader input type must match Vertex shader output type.");
+        static_assert(std::is_same_v<typename Vertex::Out, typename Fragment::In>,
+                      "Vertex shader output type (Vertex::Out) does not match Fragment shader input type (Fragment::In)");
         std::memset(DefferdBuffer.data(), 0,
                     DefferdBuffer.size() * sizeof(typename Vertex::Out));
     }
@@ -54,40 +55,26 @@ public:
     void setTargetBuffer(std::shared_ptr<Buffer> _targetBuffer) {
         targetBuffer = _targetBuffer;
     }
-
-    // Remove this awful void ptr
-    void bindVBO(void *_vbo, size_t size) override {
-        // Attempt to cast the type-erased pointer to the expected type
-        vbo = _vbo;
-
-        // Check if the vertex count is a multiple of 3
-        if (size % 3 != 0) {
-            std::cerr
-                << "Error: Vertex count must be a multiple of 3. Current size: "
-                << size << std::endl;
-            throw std::runtime_error("Vertex count must be a multiple of 3");
-        }
-        if (size == 0) {
-            throw std::runtime_error("Error: Vertex count is 0:");
-        }
-
-        vboSize = size; // Update the size after successful cast and check
+    void setTargetBuffer(std::shared_ptr<Buffer>&& _targetBuffer) {
+        targetBuffer = std::move(_targetBuffer);
     }
 
-    void drawVBO() override {
-        // Perform the casting in drawVBO, which should succeed if bindVBO was
-        // correct
+    void bindVBO(std::span<typename Vertex::In> _vbo)  {
+        vbo = _vbo;
 
+        if (_vbo.size() % 3 != 0 || _vbo.empty()) {
+            throw std::runtime_error("Invalid VBO: must be a multiple of 3 and not empty");
+        }
+
+    }
+
+    void drawVBO() {
         // Transform vertices
         std::vector<typename Vertex::Out> transformedVertices;
-        transformedVertices.reserve(vboSize);
+        transformedVertices.reserve(vbo.size());
 
-        auto *end = static_cast<typename Vertex::In *>(vbo) + vboSize;
-        auto *start = static_cast<Vertex::In *>(vbo);
-
-        for (typename Vertex::In *it = start; it != end; ++it) {
-            transformedVertices.push_back(vertexShader.apply(*it));
-        }
+        std::transform(vbo.begin(), vbo.end(), std::back_inserter(transformedVertices),
+                       [&](auto&& vertex) { return vertexShader.apply(vertex); });
 
         // Rasterize triangles
         for (size_t i = 0; i < transformedVertices.size(); i += 3) {
@@ -105,15 +92,12 @@ public:
                     data[(y * WIDTH) +
                          x]); // should change this to an it instead of set
                               // value to avoid the constant indexing
-                if (colour.r != 0) {
-                    std::cout << "here";
-                }
-                targetBuffer->setValue(y, x, colour.r, colour.g, colour.b);
+                targetBuffer->setValue(x, y, colour.r, colour.g, colour.b);
             }
         }
     }
 
-    void flush() override {
+    void flush()  {
         FragmentProcessBuffer();
         std::memset(DefferdBuffer.data(), 0,
                     DefferdBuffer.size() * sizeof(typename Vertex::Out));
@@ -125,8 +109,7 @@ public:
     Fragment &getFragmentShader() { return fragmentShader; }
 
 private:
-    void *vbo;
-    size_t vboSize;
+    std::span<typename Vertex::In> vbo;
 
     std::shared_ptr<Buffer> targetBuffer;
     std::array<typename Vertex::Out, WIDTH * HEIGHT> DefferdBuffer;

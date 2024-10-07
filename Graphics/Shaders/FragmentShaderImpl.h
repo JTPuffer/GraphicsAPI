@@ -29,11 +29,11 @@ public:
         }
         i[3] = 0;
         auto temp = i.normalize().dotProduct({std::cos(pos),1,std::sin(pos),0});
-        temp = std::max(temp,Type{0});
+        temp = std::max(temp,Type{0.1f});
         IPixel p;
-        p.r = static_cast<int>( temp *255);
-        p.g =  static_cast<int>(temp *255);
-        p.b = static_cast<int>( temp *255);
+        p.r = static_cast<int>( 1 *255);
+        p.g =  static_cast<int>(1 *255);
+        p.b = static_cast<int>( 1 *255);
         return p;
     }
     Type zero[4] = {0};

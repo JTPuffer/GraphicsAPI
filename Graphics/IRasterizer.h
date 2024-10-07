@@ -1,5 +1,6 @@
 #include "Buffer.h"
 #include <utility>
+#include <array>
 //
 // Created by matthew on 8/24/24.
 //

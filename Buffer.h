@@ -18,8 +18,8 @@ class Buffer {
     [[gnu::always_inline]] inline void clear();
     [[gnu::always_inline]] inline void clear(uint8_t r, uint8_t g, uint8_t b);
     Pixel *getData() const { return data_; }
-    constexpr size_t getWidth() const { return width_; }
-    constexpr size_t getHeight() const { return height_; }
+    [[nodiscard]] constexpr size_t getWidth() const { return width_; }
+    [[nodiscard]] constexpr size_t getHeight() const { return height_; }
     Buffer(const Buffer &) = delete;
     Buffer &operator=(const Buffer &) = delete;
 

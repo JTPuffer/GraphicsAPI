@@ -41,7 +41,7 @@ public:
     inline Math::Vector<Type,4> apply(const Math::Vector<Type,3>& vector) override {
         //projectionMatrix * viewMatrix * Math::multiplyMatrix4x4WithVector3(modelMatrix , Vector)
         auto temp = Math::multiplyMatrix4x4WithVector3(modelMatrix , vector);
-        temp.z +=0.3f;
+        temp.z +=0.5f;
         return temp;
     }
 private:
