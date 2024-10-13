@@ -4,11 +4,6 @@
 
 This project is a CMake-based system that supports both desktop and Raspberry Pi Pico platforms. It provides a simple graphics pipeline and shaders, with modules for handling window management and basic rasterization. The project is organized into different directories based on functionality.
 
-## Project Structure
-
-├── desktop/ │ ├── CMakeLists.txt │ ├── Desktop_window.h │ └── DesktopBuffer.h ├── Graphics/ │ ├── Shaders/ │ │ ├── FragmentShader.h │ │ ├── FragmentShaderImpl.h │ │ ├── VertexShader.h │ │ └── VertexShaderImpl.h │ ├── BasicRasterizer.h │ ├── CMakeLists.txt │ ├── GraphicsPipe.cpp │ ├── GraphicsPipe.h │ ├── IGraphicsPipe.h │ ├── IRasterizer.h │ └── VertexBuffer.h ├── pico/ │ ├── CMakeLists.txt │ ├── Pico_Buffer.h │ ├── pico_sdk_import.cmake │ ├── Pico_window.h │ └── pimoroni_pico_import.cmake ├── PicoB/ │ ├── .clang-format │ ├── .gitignore │ ├── Buffer.h │ ├── CMakeLists.txt │ ├── FixedPoint.h │ ├── IWindow.h │ ├── LICENSE │ └── main.cpp └── Math.h
-
-
 
 ### Folders:
 
