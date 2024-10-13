@@ -1,7 +1,7 @@
 # Basic CMake Project
 
 ## Overview
-
+#This is my second iteration of this, i have yet to impliment the pico part yet, this is designed to be more flexible than the old version
 This project is a CMake-based system that supports both desktop and Raspberry Pi Pico platforms. It provides a simple graphics pipeline and shaders, with modules for handling window management and basic rasterization. The project is organized into different directories based on functionality.
 
 
